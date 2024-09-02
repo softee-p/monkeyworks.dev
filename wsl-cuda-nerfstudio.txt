@@ -1,0 +1,150 @@
+install wsl:
+This has been tested successfully on Ubuntu-22.04 and unsuccessfully on 20.04
+
+Enable wsl from windows features then:
+wsl --install
+wsl --update
+wsl
+
+wsl helpful links: https://learn.microsoft.com/en-us/windows/wsl/install, https://learn.microsoft.com/en-us/windows/wsl/basic-commands
+
+Btw if you want to move your WSL disk to another Windows drive follow this guide and dont forget to set the default user to avoid bugs:
+-Moving WSL, setting default User:
+https://github.com/LpCodes/Moving-WSL-Distribution-to-Another-Drive
+
+
+INSTALL NERFSTUDIO IN WSL2
+
+Download and install Docker Desktop and VSCode.
+
+Install Docker extention in VSCode.
+
+in Windows download latest Nvidia WHQL Graphics Driver
+
+also disable power saving for wsl: Win11 settings ->  System -> Sys Components -> wsl
+
+-Inside WSL:
+sudo apt update && sudo apt upgrade -y
+
+Install conda/anaconda:
+# Replace <INSTALLER_VERSION> with the version of the installer file you want to download
+# For example, https://repo.anaconda.com/archive/Anaconda3-2023.09-0-Linux-x86_64.sh
+# All installers can be found at repo.anaconda.com/archive/
+curl -O https://repo.anaconda.com/archive/Anaconda3-<INSTALLER_VERSION>-Linux-x86_64.sh
+# You can update the base environment with: conda update conda
+shasum -a 256 ./Anaconda3-<INSTALLER_VERSION>-Linux-x86_64.sh
+bash ./Anaconda3-<INSTALLER_VERSION>-Linux-x86_64.sh
+# If you dont like the conda base env auto-activating every time you launch a shell do:
+conda config --set auto_activate_base False
+
+Install cuda-toolkit-11.8:
+Nvidia instructions: https://docs.nvidia.com/cuda/wsl-user-guide/index.html
+Notes:
+The nvidia cuda driver is shared between windows and wsl hosts. Do not install any drivers inside wsl, as this will overwrite the shared driver that already exists. Instead, only install the cuda-toolkit as per the official nvidia wsl installation instructions. As the docs say:
+
+Note *	The CUDA WSL-Ubuntu local installer does not contain the NVIDIA Linux GPU driver, 
+	so by following the steps on the CUDA download page for WSL-Ubuntu, 
+	you will be able to get just the CUDA toolkit installed on WSL.
+So that means follow the deb(local) installation. Direct link:
+https://developer.nvidia.com/cuda-11-8-0-download-archive?target_os=Linux&target_arch=x86_64&Distribution=WSL-Ubuntu&target_version=2.0&target_type=deb_local
+
+Delete old apt key before installing:
+sudo apt-key del 7fa2af80
+
+You may have to edit your ¬/.bashrc file, in which case add these two lines onto the end:
+export PATH=/usr/local/cuda-11.8/bin${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda-11.8/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+and then run source ~/.bashrc from your user directory
+
+Now follow Nerfstudio official insructions: https://docs.nerf.studio/quickstart/installation.html
+
+Create a conda environment:
+conda create --name nerfstudio -y python=3.8
+conda activate nerfstudio
+python -m pip install --upgrade pip
+
+
+Choose pytorch for cuda11.8
+pip install torch==2.1.2+cu118 torchvision==0.16.2+cu118 --extra-index-url https://download.pytorch.org/whl/cu118
+
+This is the direct link for the pytorch local installer guide if you want a different version.
+https://pytorch.org/get-started/locally/ *can skip torchaudio
+
+
+-Check if Cuda available
+
+python
+
+>>> import torch
+>>> torch.cuda.is_available()
+True
+>>>
+
+
+-if not, 
+	re install NV Toolkit via Nvidia install guide, 
+
+	or
+
+	conda install cuda -c nvidia/label/cuda-11.8.0
+
+
+Install tiny-cuda-nn:
+pip install ninja git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch
+If you get compilation errors switch your gcc from version 11 to 10 for this build.
+
+Install nerfstudio:
+git clone https://github.com/nerfstudio-project/nerfstudio.git
+cd nerfstudio
+pip install --upgrade pip setuptools
+pip install -e .
+
+ns-install-cli
+
+Restart your terminal.
+
+---COLMAP---
+do not conda install.
+if you did conda install, uninstall, then reinstall nerfstudio, and do ns-install-cli.
+then in a fresh directory outside nerfstudio:
+
+* Make sure your nerfstudio conda environment is activated.
+
+git clone https://github.com/colmap/colmap.git
+cd colmap
+mkdir build
+cd build
+#During CMake configuration specify CMAKE_CUDA_ARCHITECTURES:
+cmake .. -GNinja -DCMAKE_CUDA_ARCHITECTURES=89
+ninja
+sudo ninja install
+
+ns-install-cli
+Relaunch terminal
+
+
+Tips and tricks:
+
+*convert ply to standalone static html webpage powered by gsplat.js
+https://github.com/SpectacularAI/point-cloud-tools
+
+
+
+	in new env, install toolkit then
+	python convert.py {path/file.ply} {path/index.html} --ply_input_format=nerfstudio
+
+	You can also use the toolkit to convert to .splat:
+	 python convert.py ~/dl/nerfstudio/workspace/exports/splat/polycam/splat.ply ~/webapps/splat-viewer/polycam.splat --ply_input_format=nerfstudio
+
+
+
+
+Data conversion Tips:
+
+--SpectacularAI---
+When converting with sai-cli don't selected --preview to avoid OpenGL error.
+
+--COLMAP Alternatives--
+RealityCapture Desktop. It recently became free.
+Here is how you can convert the data to nerfstudio format:
+https://docs.nerf.studio/quickstart/custom_dataset.html#realitycapture
