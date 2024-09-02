@@ -1,7 +1,7 @@
 ---
 title: "Installing WSL, CUDA Toolkit, and Nerfstudio: A Comprehensive Guide"
 description: "Learn how to set up WSL2, install CUDA Toolkit, and get Nerfstudio running on your Windows machine."
-date: "2024-03-09"
+date: "2024-09-03"
 ---
 
 # Installing WSL, CUDA Toolkit, and Nerfstudio: A Comprehensive Guide
