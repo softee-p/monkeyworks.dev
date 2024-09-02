@@ -1,3 +1,9 @@
+---
+title: "Installing WSL, CUDA Toolkit, and Nerfstudio: A Comprehensive Guide"
+description: "Learn how to set up WSL2, install CUDA Toolkit, and get Nerfstudio running on your Windows machine."
+date: "2024-03-09"
+---
+
 # Installing WSL, CUDA Toolkit, and Nerfstudio: A Comprehensive Guide
 
 In this tutorial, we'll walk through the process of setting up Windows Subsystem for Linux (WSL2), installing CUDA Toolkit, and getting Nerfstudio up and running. This guide has been tested successfully on Ubuntu 22.04.
